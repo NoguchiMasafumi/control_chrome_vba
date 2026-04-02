@@ -144,7 +144,7 @@ Sub send_mail(str_mail_to, str_mail_cc, str_mail_subject, str_mail_body, str_att
     With objCDO
         With .Configuration.Fields '設定項目
             .Item(CdoConfiguration.cdoSendUsingMethod) = cdoSendUsingPort    ' 外部SMTP指定
-            .Item(CdoConfiguration.cdoSMTPServer) = "smtp.his" 'SMTPサーバ名
+            .Item(CdoConfiguration.cdoSMTPServer) = "smtp.com" 'SMTPサーバ名
             .Item(CdoConfiguration.cdoSMTPServerPort) = 25 'ポート№
             .Item(CdoConfiguration.cdoSMTPConnectionTimeout) = 60 'タイムアウト
             .Item(CdoConfiguration.cdoSMTPAuthenticate) = cdoAnonymous       ' 0
@@ -152,13 +152,13 @@ Sub send_mail(str_mail_to, str_mail_cc, str_mail_subject, str_mail_body, str_att
             .Update '設定を更新
          End With
         .MimeFormatted = True 'MIMEを使って書式設定
-        .From = "ti-yield5@his-world.com"
-        '.From = "noguchi.masafumi@his-world.com"
+        .From = "noguchimasafumi0@gmail.com"
+        '.From = "noguchimasafumi0@gmail.com"
         .To = str_mail_to
         If str_mail_cc <> "" Then
             .CC = str_mail_cc
         Else
-            .CC = "noguchi.masafumi@his-world.com"
+            .CC = "noguchimasafumi0@gmail.com"
         End If
         .BodyPart.Charset = "utf-8"
         .Subject = str_mail_subject
