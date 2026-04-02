@@ -2,8 +2,8 @@
 Sub login_gmail(drv)
     
     '********* hisgroup_login ************
-    str_gmail_address = "noguchi.masafumi@his-world.com"
-    str_gmail_password = "Nog1242no\"
+    str_gmail_address = "noguchimasafumi0@gmail.com"
+    str_gmail_password = "xxx123"
     
     
     '********************************** 1回目　メールアドレス入力 *********
@@ -14,7 +14,7 @@ Sub login_gmail(drv)
             If int_do_cnt > 0 Then
                 Call wait(15002)
             End If
-            drv.NavigateTo "https://portal.hisgroup.app/"
+            drv.NavigateTo "https://portal.comgroup.app/"
             Call wait(2000)
             str_ttl = drv.GetTitle
             int_do_cnt = int_do_cnt + 1
