@@ -1,0 +1,131 @@
+﻿Sub rjct_spces_frm_strng(tgt_str)
+    tgt_str = Replace(tgt_str, vbLf, "")
+    tgt_str = Replace(tgt_str, vbCr, "")
+    tgt_str = Replace(tgt_str, "      ", "")
+    tgt_str = Replace(tgt_str, "     ", "")
+    tgt_str = Replace(tgt_str, "&nbsp;", "")
+    tgt_str = Replace(tgt_str, "<span class=""NOWRAP"">", "")
+    tgt_str = Replace(tgt_str, "<span class=""PsCH"">", "")
+    tgt_str = Replace(tgt_str, "</span>", "")
+End Sub
+
+Sub chk_crs_rsponse(drv)
+    str_disp_txt = drv.FindElements(By.tagName, "body")(0).GetText
+    If InStr(str_disp_txt, "からの応答時間が長すぎます") > 0 Then
+        pubstr_booked_ref = ""
+        pubstr_booking_sts = "NO CHALLENGE RESPONSE"
+        int_go1 = 0
+    End If
+    '****************
+    If InStr(str_disp_txt, "CDATA[N") > 0 Then
+        pubstr_booked_ref = ""
+        pubstr_booking_sts = "NO CHALLENGE RESPONSE"
+        int_go1 = 0
+    End If
+End Sub
+
+Sub chk_challenge_please(drv)
+    Call wait(2015)
+    On Error Resume Next
+    Do Until InStr(drv.FindElements(By.tagName, "body")(0).GetText, "Please wait...") = 0
+        Call wait(517)
+        int_chk1 = int_chk1 + 1
+        If int_chk1 > 150 Then
+            MsgBox ("流石に長い")
+            Exit Do
+        End If
+        '*****************
+        If InStr(drv.FindElements(By.tagName, "body")(0).GetText, "APPLICATION NOT REPLYING") > 0 Then
+            Exit Do
+        End If
+    Loop
+    Call wait(224)
+    On Error GoTo 0
+End Sub
+Sub chk_flt_category(str_txt)
+    pubar_cit_cod = Array("901", "902", "903", "904", "*01", "12J", "6A6", "6B6", "6C6", "6D6", "6E6", "6F6", "6G6", "6H6", "6I6", "6J6", "6K6", "6L6", "6M6", "6N6", "6O6", "6P6", "6Q6", "6R6", "6S6", "AGJ", "AHA", "AKJ", "AOJ", "ASJ", "AXJ", "AXT", "BPU", "BS1", "BS2", "C90", "C92", "C93", "CTS", "D86", "DNA", "E08", "FKJ", "FKS", "FSZ", "FUJ", "FUK", "FUP", "GAJ", "HAC", _
+    "HHE", "HIJ", "HIW", "HKD", "HNA", "HND", "HSG", "HTB", "HTR", "IBR", "IEJ", "IHA", "IIN", "IKI", "IM1", "ISG", "ITM", "IWJ", "IWK", "IWO", "IZO", "JUK", "KCZ", "KIJ", "KIX", "KJP", "KKJ", "KKX", "KMI", "KMJ", "KMQ", "KOJ", "KTD", "KUH", "KUJ", "KUM", "LMJ", "MBE", "MMB", "MMD", "MMJ", "MMY", "MSJ", "MUS", "MYE", "MYJ", "NGO", "NGS", "NGY", "NJA", _
+    "NKM", "NRT", "NTQ", "O52", "O56", "OBO", "OGN", "OIM", "OIR", "OIT", "OKA", "OKD", "OKE", "OKI", "OKJ", "OKO", "OMJ", "ONJ", "OOI", "OSA", "P08", "QCB", "QEB", "QFY", "QGT", "QGU", "QGZ", "QHY", "QIS", "QKV", "QKW", "QKY", "QMC", "QNG", "QNZ", "QOM", "QOO", "QOT", "QRN", "QSI", "QSZ", "QTM", "QTY", "QUT", "RBJ", "RIS", "RNJ", "SDJ", "SDO", "SDS", _
+    "SHB", "SHI", "SHM", "SPK", "SRT", "SYO", "TAK", "TJH", "TKN", "TKS", "TNE", "TOY", "TRA", "TSJ", "TTJ", "TYO", "UBJ", "UEO", "UKB", "UKY", "WKJ", "XEI", "XXX", "YGJ", "YOK", "Z04", "Z05", "Z06", "Z07", "Z08", "Z09", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z23", "Z24", "Z25", "Z26", "Z27", "Z28", "Z29", "Z30", "Z31", "Z32")
+    If Len(str_txt) = 7 And Mid(str_txt, 4, 1) = "/" Then
+        ar_splt1 = Split(str_txt, "/")
+        '********* 出発地が日本の空港なら配列に入り　入った場合uboundすると数は0になる。ない場合は-1 ************************
+        ar_dep = Filter(pubar_cit_cod, ar_splt1(0))
+        ar_arv = Filter(pubar_cit_cod, ar_splt1(1))
+        If UBound(ar_dep) = 0 And UBound(ar_arv) = 0 Then
+            str_txt = "DOMESTIC"
+        ElseIf UBound(ar_dep) = 0 And UBound(ar_arv) = -1 Or UBound(ar_dep) = -1 And UBound(ar_arv) = 0 Then
+            str_txt = "INTER"
+        ElseIf UBound(ar_dep) = -1 And UBound(ar_arv) = -1 Then
+            str_txt = "ONTO"
+        End If
+    Else
+        
+    End If
+End Sub
+Sub send_cmd_to_chlng_crs(drv, str_cmd1)
+    On Error Resume Next
+        drv.FindElements(By.name, "body:commando01")(0).SendKeys CStr(str_cmd1)
+        drv.FindElements(By.name, "body:commando02")(0).Click
+        Call chk_challenge_please(drv)
+        Call get_rslt
+        '**************
+        int_go_snd_cmd1 = 1
+        If InStr(drv.FindElements(By.tagName, "body")(0).GetText, "からの応答時間が長すぎます") > 0 Then
+            s = 1
+        End If
+        str_hd_txt1 = drv.FindElement(By.ID, "header").GetText
+        If InStr(str_hd_txt1, "0941") > 0 Then
+            s = 1
+        End If
+    On Error GoTo 0
+End Sub
+
+Sub get_rslt(drv)
+    '*************************
+    On Error Resume Next
+        Set elem1 = drv.FindElements(By.name, "body:cmdHistory")(0)
+            '*****************************
+            int_go_rslt = 1
+            str_msg1 = drv.FindElements(By.tagName, "body")(0).GetText
+            If InStr(str_msg1, "からの応答時間が長すぎます") > 0 Then
+                int_go_rslt = 0
+            End If
+            '*****************************
+            If UBound(drv.FindElements(By.ID, "error")) > -1 Then
+                str_msg2 = drv.FindElement(By.ID, "error").GetText
+                If InStr(str_msg2, "![CDATA[") > 0 Then
+                    int_go_rslt = 0
+                End If
+            End If
+            '*********
+            If int_go_rslt = 0 Then
+                s = 1
+            Else
+                For Each opt_elem1 In drv.FindElementsFromElement(elem1, By.tagName, "option")
+                    str_in_htm1 = drv.ExecuteScript("return arguments[0].outerHTML;", opt_elem1)
+                    If InStr(str_in_htm1, "selected=""selected""") > 0 Then
+                        str_cmd = opt_elem1.GetAttribute("value")
+                        Exit For
+                    End If
+                Next opt_elem1
+                pubstr_rslt_rec = pubstr_rslt_rec & str_cmd & "<br />--------------------------------------------------------------------------------------------------------------------------------------<br />" & vbLf
+                pubstr_rslt_rec = pubstr_rslt_rec & Replace(drv.FindElements(By.tagName, "tt")(0).GetText, vbLf, "<br />") & "<br />--------------------------------------------------------------------------------------------------------------------------------------" & "<br /><br />" & vbLf
+            End If
+        Set elm1 = Nothing
+    On Error GoTo 0
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,134 @@
+﻿'******************* Challenge112の検索結果をarea3 4 5に貼り付ける ****************************
+Sub get_challenge_record1(drv, int_loop3)
+    srch_rslt = ""
+    Set elm_tbl1 = drv.FindElements(By.tagName, "table")(1)
+        str_js1 = ""
+        str_js1 = str_js1 & "const elm_row= arguments[0].rows;"
+        str_js1 = str_js1 & "var txt_rslt='';"
+        str_js1 = str_js1 & "for (let ilp3=1;ilp3<elm_row.length;ilp3++) {"
+        str_js1 = str_js1 & "  const cells = Array.from(elm_row[ilp3].cells).map(cell => {"
+        str_js1 = str_js1 & "    let cellText = cell.innerHTML;"
+        str_js1 = str_js1 & "    cellText = cellText.replace(/<br>/gi, ',');"
+        str_js1 = str_js1 & "    cellText = cellText.replace(/\n/g, '');"
+        str_js1 = str_js1 & "    cellText = cellText.replace(/\s{3,}/g, '');"
+        str_js1 = str_js1 & "    cellText = cellText.replace(/<[^>]+>/g, '');"
+        str_js1 = str_js1 & "    return cellText;"
+        str_js1 = str_js1 & "  });"
+        str_js1 = str_js1 & "  let url = '';"
+        str_js1 = str_js1 & "  const linkElement = elm_row[ilp3].cells[1]?.querySelector('a');"
+        str_js1 = str_js1 & "  if (linkElement) {"
+        str_js1 = str_js1 & "    url = linkElement.href;"
+        str_js1 = str_js1 & "  }"
+        str_js1 = str_js1 & "  txt_rslt += cells.join('\t') + '\t' + url + '\r\n';"
+        str_js1 = str_js1 & "};"
+        str_js1 = str_js1 & "txt_rslt=txt_rslt.slice(0,-1);"
+        str_js1 = str_js1 & "return txt_rslt;"
+        srch_rslt = drv.ExecuteScript(str_js1, elm_tbl1)
+    Set elm_tbl1 = Nothing
+    ar_srch_rslt = Split(srch_rslt, vbCrLf)
+    '******area4 passenger
+    ar_pas_col = Array(3, 4, 5)
+    '******area5 segment
+    ar_seg_col = Array(8, 9, 10, 11, 12, 16, 17, 24, 8, 19, 20, 21, 18, 26, 13)
+    Set pubCL_challenge11 = New Collection
+    '***** area3 ******
+    For int_loop5 = 0 To UBound(ar_srch_rslt)
+        ar_td = Split(ar_srch_rslt(int_loop5), vbTab)
+        '******* Challenge番号5文字目がHではない＝impではない場合 *******
+        str_challenge = ar_td(1)
+        str_let5 = Mid(str_challenge, 5, 1)
+        If str_let5 <> "H" Then
+            '************************** area3 basic **************************
+            Cells(pubint_execute_area3, pubAR_area_col(3) + 0).value = pubar2_area0(int_loop3, 2)                                       '*** 1A
+            Cells(pubint_execute_area3, pubAR_area_col(3) + 1).value = str_challenge                                                         '*** Challenge番号
+            '*************** 登場ChallengeをCollection *************************
+            int_cl_cnt = pubCL_challenge11.Count
+            int_exst1 = 0
+            str_challenge11 = Left(str_challenge, 11)
+            If int_cl_cnt <> 0 Then
+                For int_loop6 = 1 To int_cl_cnt
+                    If pubCL_challenge11(int_loop6) = str_challenge11 Then
+                        int_exst1 = 1
+                        Exit For
+                    End If
+                Next int_loop6
+            End If
+            If int_exst1 = 0 Then
+                pubCL_challenge11.Add (str_challenge11)
+            End If
+            '****** Challenge URL特殊処理impとかだとurlが異なる。国籍調べるときurlが有用 *******
+            ar_splt2 = Split(ar_td(27), "cgi-bin")
+            If UBound(ar_splt2) = 0 Then
+                str_challenge_num_url2 = ar_splt2(0)
+            Else
+                str_challenge_num_url2 = "http://" & pubar2_area0(int_loop3, 86) & ":" & pubar2_area0(int_loop3, 87) & "@applweb.center.his/cgi-bin" & ar_splt2(1)
+            End If
+            Cells(pubint_execute_area3, pubAR_area_col(3) + 2).value = str_challenge_num_url2                                               '*** URL
+            '*************
+            Cells(pubint_execute_area3, pubAR_area_col(3) + 3).value = Replace(ar_td(2), ",", "<br>")                                       '*** 受付店舗
+            Cells(pubint_execute_area3, pubAR_area_col(3) + 4).value = Replace(ar_td(15), ",", "<br>")                                       '*** 手配数
+            pubint_execute_area3 = pubint_execute_area3 + 1
+            '************************** area4 passenger get_calng_prvcy_datは必要な予約方法の時のみ ******************************************
+            ar_splt_pas_rw = Split(ar_td(3), ",")
+            int_pas_rw = UBound(ar_splt_pas_rw)
+            For int_loop6 = 0 To UBound(ar_pas_col)
+                ar_splt_put1 = Split(ar_td(ar_pas_col(int_loop6)), ",")
+                '************************* これ-1でいいのか？ passenger最後は<br>だからいらない。***********************************
+                For int_loop7 = 0 To int_pas_rw - 1
+                    If int_loop6 = 0 Then
+                        Cells(pubint_execute_area4 + int_loop7, pubAR_area_col(4) + 0).value = str_challenge
+                    End If
+                    Cells(pubint_execute_area4 + int_loop7, pubAR_area_col(4) + 1 + int_loop6).value = ar_splt_put1(int_loop7)
+                Next int_loop7
+            Next int_loop6
+            pubint_execute_area4 = pubint_execute_area4 + int_loop7
+            '************************** area5 segment ******************************************
+            ar_flt_chk = Split(ar_td(11), ",")
+            '***** まず　segとして必要なtdを ,分割 *****
+            For int_loop6 = 0 To UBound(ar_seg_col)
+                ar_splt_put1 = Split(ar_td(ar_seg_col(int_loop6)), ",")
+                int_lop7_pls1 = 0
+                If UBound(ar_splt_put1) = UBound(ar_flt_chk) Then
+                    For int_loop7 = 0 To UBound(ar_flt_chk) - 1
+                        str_flt = ar_flt_chk(int_loop7)
+                        str_flt_lt2 = Left(str_flt, 2)
+                        '************* おい！**除外したらANY取れないだろ！ ***************
+                        If str_flt_lt2 <> "$$" Then
+                            '********* 1回目に必要なtd　=　Desである　=　td8 ***********
+                            If int_loop6 = 0 Then
+                                Cells(pubint_execute_area5 + int_lop7_pls1, pubAR_area_col(5) + 0).value = str_challenge
+                            End If
+                            '** 入力値 **
+                            str_inp2 = ar_splt_put1(int_loop7)
+                            If int_loop6 = 8 Then
+                                '******************************** 強力に出発地判定の値を変換している ****************************************
+                                Call chk_flt_category(str_inp2)
+                            Else
+                                If ar_seg_col(int_loop6) = 18 Then
+                                    str_inp2 = "'" & str_inp2
+                                End If
+                            End If
+                            
+                            '**********************
+                            If int_loop6 = 3 Then
+                                If str_inp2 = "**ANYM" Then
+                                    s = 1
+                                End If
+                            End If
+                            Cells(pubint_execute_area5 + int_lop7_pls1, pubAR_area_col(5) + 1 + int_loop6).value = str_inp2
+                            int_lop7_pls1 = int_lop7_pls1 + 1
+                        End If
+                    Next int_loop7
+                End If
+            Next int_loop6
+            pubint_execute_area5 = pubint_execute_area5 + int_lop7_pls1
+        End If
+    Next int_loop5
+End Sub
+
+
+
+
+
+
+

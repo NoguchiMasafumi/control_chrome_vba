@@ -1,0 +1,180 @@
+﻿Declare PtrSafe Function GetForegroundWindow Lib "USER32" () As LongPtr
+Declare PtrSafe Sub SetForegroundWindow Lib "USER32" (ByVal hWnd As LongPtr)
+Declare PtrSafe Function FindWindow Lib "USER32" Alias "FindWindowA" (ByVal lpClassName As String, ByVal lpWindowName As String) As LongPtr
+Declare PtrSafe Function GetWindowText Lib "USER32" Alias "GetWindowTextA" (ByVal hWnd As LongPtr, ByVal lpString As String, ByVal cch As Long) As LongPtr
+Declare PtrSafe Function GetWindow Lib "USER32" (ByVal hWnd As LongPtr, ByVal wCmd As Long) As LongPtr
+Declare PtrSafe Function GetWindowTextLength Lib "USER32" Alias "GetWindowTextLengthA" (ByVal hWnd As LongPtr) As Long
+
+'*** default ***
+Public DRIVER As New WebDriver
+Public DRIVER2 As New WebDriver
+
+'*** Mod101_common ***
+Public pubint_last_row, pubint_last_col, pubint_absnt_chk
+Public pubstr_lst_nam, pubstr_fir_nam, pubstr_ttl
+
+'*** Mod201_orchestrator ***
+Public pubint_data_row, pubint_execute_area3, pubint_execute_area4, pubint_execute_area5
+Public pubstr_book1_name, pubstr_pc_nam
+Public pubpath_download, pubpath_chromedriver
+Public pubAR_area_col As New ArrayList
+
+'*** Mod301_chlng_base ***
+Public pubstr_booking_sts, pubstr_pubstr_rslt_rec
+
+'****最終行を取得
+Sub get_last_row(int_col1)
+    pubint_last_row = Cells(Rows.Count, int_col1).End(xlUp).Row
+End Sub
+
+'****最終列を取得
+Sub get_last_col(int_row1)
+    pubint_last_col = Cells(int_row1, Columns.Count).End(xlToLeft).Column
+End Sub
+Sub wait(int_msec)
+    tim_cur = Timer
+    Do Until Timer > tim_cur + (int_msec / 1000)
+    Loop
+End Sub
+Sub crm_drv_absnt_chk(drv, cls1, cls_nam)
+    '******************* chromedriverで無いものをカウントする時の早い方法 DRIVER　番号注意だよ******************
+    pubint_absnt_chk = -1
+    Set elm_arg = drv.FindElements(By.tagName, "body")(0)
+        str_js1 = "txt_rslt=arguments[0].querySelectorAll('" & cls1 & cls_nam & "').length; return txt_rslt;"
+        pubint_absnt_chk = drv.ExecuteScript(str_js1, elm_arg)
+    Set elm_tbl1 = Nothing
+    '******************* / chromedriverで無いものをカウントする時の早い方法 ******************
+End Sub
+'************************************
+Sub set_forefront(str_tgt_ttl)
+    Dim windowText As String
+    hWnd = FindWindow(vbNullString, vbNullString)
+    Do While hWnd <> 0
+        TextLength = GetWindowTextLength(hWnd)
+        If TextLength > 0 Then
+            windowText = Space(TextLength + 1)
+            GetWindowText hWnd, windowText, TextLength + 1
+            
+            If Left(windowText, Len(str_tgt_ttl)) = str_tgt_ttl Then
+                '****************************  ******************************************
+                SetForegroundWindow hWnd
+                Call wait(200)
+                Exit Do
+            End If
+        End If
+        hWnd = GetWindow(hWnd, 2) ' 2 = GW_HWNDNEXT
+    Loop
+End Sub
+
+Sub your_name(str_pax_nam1)
+    pubstr_lst_nam = ""
+    pubstr_fir_nam = ""
+    pubstr_ttl = ""
+    '*****PAX名の 空欄の数を数える****
+    int_ln_bef_replc = Len(str_pax_nam1)
+    int_ln_aft_replc = Len(Replace(str_pax_nam1, " ", ""))
+    '***これでいくつめからが性別文字か判明***
+    int_sp_cnt = int_ln_bef_replc - int_ln_aft_replc
+    '*****性別文字変数化****
+    ar_splt1 = Split(str_pax_nam1, " ")
+    pubstr_ttl = ar_splt1(int_sp_cnt)
+    '**** AYLTON/SENNA DA SILVA MR 対策 *********
+    str_lst_fir_nam = Replace(str_pax_nam1, " " & pubstr_ttl, "")
+    str_lst_fir_nam = Replace(str_lst_fir_nam, " ", "")
+    ar_splt2 = Split(str_lst_fir_nam, "/")
+    pubstr_lst_nam = ar_splt2(0)
+    pubstr_fir_nam = ar_splt2(1)
+End Sub
+
+Sub server_mente_switch(int_go3, str_mode)
+    '********************** サーバーメンテ 停止型 *******************************
+    ar_srv_mente_fr = Array("2025/07/09 01:00:00", "2025/11/05 22:30:00", "2026/03/23 21:30:00")
+    ar_srv_mente_to = Array("2025/07/09 07:30:00", "2025/11/06 06:00:00", "2026/03/24 07:00:00")
+    For int_loop3 = 0 To UBound(ar_srv_mente_fr)
+        int_go_rng1 = 0
+        If CDate(ar_srv_mente_fr(int_loop3)) <= Now And Now <= CDate(ar_srv_mente_to(int_loop3)) Then
+            int_go_rng1 = 1
+        End If
+    
+        If int_go_rng1 = 1 Then
+            If str_mode = "close" Then
+                Application.DisplayAlerts = False
+                    Workbooks(ActiveWorkbook.name).Saved = True
+                    If Workbooks.Count <= 1 Then
+                        Application.Quit
+                    End If
+                    Workbooks(ActiveWorkbook.name).Close
+                Application.DisplayAlerts = True
+            Else
+                int_go3 = 1
+            End If
+        End If
+    Next int_loop3
+End Sub
+Sub export_this_vba_code()
+    path_exprt = ActiveWorkbook.path & "\vba_code\"
+    If Dir(path_exprt, vbDirectory) = "" Then MkDir path_exprt
+    ar_rej = Array("WebDriver", "WebDriverOptions", "WebElement", "JsonConverter")
+    For Each vbc In ThisWorkbook.VBProject.VBComponents
+        skip_flg = False
+        For Each rej_name In ar_rej
+            If vbc.name = rej_name Then
+                skip_flg = True
+                Exit For
+            End If
+        Next rej_name
+        If vbc.CodeModule.CountOfLines > 0 And skip_flg = False Then
+            Set adoStream = CreateObject("ADODB.Stream")
+            adoStream.Type = 2
+            adoStream.Charset = "UTF-8"
+            adoStream.Open
+            adoStream.WriteText vbc.CodeModule.Lines(1, vbc.CodeModule.CountOfLines)
+            adoStream.SaveToFile path_exprt & vbc.name & ".txt", 2
+            adoStream.Close
+        End If
+    Next vbc
+    MsgBox "全コードを書き出しました！"
+End Sub
+Sub send_mail(str_mail_to, str_mail_cc, str_mail_subject, str_mail_body, str_attachment)
+    If IsEmpty(str_mail_to) Or IsEmpty(str_mail_subject) Or IsEmpty(int_body_mode) Or IsEmpty(str_mail_body) Then
+        MsgBox ("ここ繊細ちゃん")
+        Call wait(3028)
+    End If
+    Dim objCDO As New CDO.Message
+    With objCDO
+        With .Configuration.Fields '設定項目
+            .Item(CdoConfiguration.cdoSendUsingMethod) = cdoSendUsingPort    ' 外部SMTP指定
+            .Item(CdoConfiguration.cdoSMTPServer) = "smtp.his" 'SMTPサーバ名
+            .Item(CdoConfiguration.cdoSMTPServerPort) = 25 'ポート№
+            .Item(CdoConfiguration.cdoSMTPConnectionTimeout) = 60 'タイムアウト
+            .Item(CdoConfiguration.cdoSMTPAuthenticate) = cdoAnonymous       ' 0
+            .Item(CdoConfiguration.cdoLanguageCode) = CdoCharset.cdoShift_JIS '文字セット指定
+            .Update '設定を更新
+         End With
+        .MimeFormatted = True 'MIMEを使って書式設定
+        .From = "ti-yield5@his-world.com"
+        '.From = "noguchi.masafumi@his-world.com"
+        .To = str_mail_to
+        If str_mail_cc <> "" Then
+            .CC = str_mail_cc
+        Else
+            .CC = "noguchi.masafumi@his-world.com"
+        End If
+        .BodyPart.Charset = "utf-8"
+        .Subject = str_mail_subject
+        .HTMLBody = str_mail_body
+        '*****
+        If str_attachment <> 0 And str_attachment <> "" Then
+            .AddAttachment str_attachment
+        End If
+        .send
+        DoEvents
+        DoEvents
+    End With
+    Set objCDO = Nothing
+    Call wait(2065)
+End Sub
+
+
+
+

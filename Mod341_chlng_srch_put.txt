@@ -1,0 +1,88 @@
+﻿Sub chlng_srch_put(drv, int_go3)
+
+    If int_go3 = 1 Then
+        Set elm1 = drv.FindElements(By.tagName, "body")(0)
+            Do
+                '*****************************************************************************************************************************************
+                '*****************************************************************************************************************************************
+                '*****************************************************************************************************************************************
+                '*****************************************************************************************************************************************
+                Call challenge_search_on_112(drv, int_loop3)
+                Set elm1 = drv.FindElements(By.tagName, "body")(0)
+            Loop Until InStr(elm1.GetText, "からの応答時間が長すぎます") = 0 And elm1.GetText <> ""
+        Set elm1 = Nothing
+        '************* 新規追加時停めるならここオススメ！ ******************
+        If InStr(drv.FindElements(By.tagName, "body")(0).GetText, "該当データがありません") Then
+            int_go3 = 0
+            pubstr_booking_sts = "CHALLENGE_RECORD_NOT_EXIST"
+        End If
+    End If
+    '************************ お決まりページ繰り ************ SAB_API_REFLECT 2/4 *********************
+    If int_go3 = 1 Then
+        int_disp_recd = 50
+        '*******************
+        Call chk_challenge_please(drv)
+        On Error Resume Next
+            Set elem1 = drv.FindElement(By.ID, "tagged")
+                '*** n件中 yを取得 ***
+                str_cnt1 = drv.FindElementsFromElement(elem1, By.tagName, "td")(3).GetText
+                ar_splt1 = Split(str_cnt1, " ")
+                str_cnt1 = ar_splt1(1)
+                If IsNumeric(str_cnt1) = False Then
+                    MsgBox ("Challengeからのレスポンスが不可解")
+                    drv.CloseBrowser
+                    DoEvents
+                    DoEvents
+                    drv.Quit
+                    DoEvents
+                    DoEvents
+                End If
+                int_page_nation1 = CInt(str_cnt1) \ int_disp_recd
+            Set elem1 = Nothing
+        On Error GoTo 0
+    End If
+    '******************
+    str_ttl = drv.GetTitle
+    If InStr(str_ttl, "システム・エラー") > 0 Then
+        int_go3 = 0
+    End If
+    '********************************************************************* 3/4 ************
+    If int_go3 = 1 Then
+        For int_loop4 = 0 To int_page_nation1
+            '********************** お決まり　表示化 **********************************
+            drv.FindElements(By.name, "body:maxLine")(0).SendKeys CStr(int_disp_recd)
+            If int_loop4 = 0 Then
+                drv.FindElements(By.name, "body:PreviousPage")(0).Click
+            Else
+                drv.FindElements(By.name, "body:NextPage")(0).Click
+            End If
+            Call wait(1019)
+            '*************** Error trap *****************
+            int_tbl_cnt1 = UBound(drv.FindElements(By.tagName, "table"))
+            If int_tbl_cnt1 < 2 Then
+                drv.Refresh
+            End If
+            '************* trが少なかったら cxl明細表示 *****************
+            Set tbl_html = drv.FindElements(By.tagName, "table")(1)
+                int_tr_cnt = UBound(drv.FindElementsFromElement(tbl_html, By.tagName, "tr"))
+                '********************************************************************************************************************************************************************************************************
+                '********************************************************************************************************************************************************************************************************
+                '******** ここでセルにChallenge情報を入力 Sub get_challenge_record1(tbl_html, int_execute_area3, int_tr_cnt, str_ivr_cd1, int_lmt_judge1)  **************************************************************
+                '********************************************************************************************************************************************************************************************************
+                '********************************************************************************************************************************************************************************************************
+                Call get_challenge_record1(drv, int_loop3)
+            Set tbl_html = Nothing
+        Next int_loop4
+        '***************************************
+        Call get_last_row(pubAR_area_col(3) + 1)
+        int_area3_lst_row1 = pubint_last_row
+        Call get_last_row(pubAR_area_col(4) + 0)
+        int_area4_lst_row1 = pubint_last_row
+        Call get_last_row(pubAR_area_col(5) + 0)
+        int_area5_lst_row1 = pubint_last_row
+        '*********** 11行よりも少ないならやらない ***************
+        If int_area3_lst_row1 < pubint_data_row1 Then
+            int_go3 = 0
+        End If
+    End If
+End Sub

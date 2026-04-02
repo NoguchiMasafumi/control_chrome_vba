@@ -1,0 +1,126 @@
+﻿'************ GMailアカウントにログインをする *****************
+Sub login_gmail(drv)
+    
+    '********* hisgroup_login ************
+    str_gmail_address = "noguchi.masafumi@his-world.com"
+    str_gmail_password = "Nog1242no\"
+    
+    
+    '********************************** 1回目　メールアドレス入力 *********
+    str_tgt_ttl = "ログイン | Portal"
+    int_do_cnt = 0
+    On Error Resume Next
+        Do
+            If int_do_cnt > 0 Then
+                Call wait(15002)
+            End If
+            drv.NavigateTo "https://portal.hisgroup.app/"
+            Call wait(2000)
+            str_ttl = drv.GetTitle
+            int_do_cnt = int_do_cnt + 1
+            If int_do_cnt > 10 Then
+                Exit Do
+            End If
+        Loop Until str_ttl = str_tgt_ttl
+    On Error GoTo 0
+    Call set_forefront(str_tgt_ttl)
+    
+    
+    '*************************************************************************
+    drv.FindElement(By.ID, "username").SendKeys CStr(str_gmail_address)
+    drv.FindElements(By.name, "action")(0).Click
+    Call wait(5000)
+    
+    '*********************************** パスワード入力 *********
+    drv.FindElement(By.ID, "password").SendKeys CStr(str_gmail_password)
+    '**** 続けるをクリック ****
+    int_err_num1 = 0
+    On Error Resume Next
+        For Each elm1 In drv.FindElements(By.name, "action")
+            If elm1.GetText = "続ける" Then
+                elm1.Click
+                '*** アイコンが並ぶ画面へ遷移 ***
+                Exit For
+            End If
+        Next elm1
+    On Error GoTo 0
+    Call wait(5000)
+    
+    
+    '********************************** 2回目　メールアドレス入力 2025/09/03 DRIVER番号は気をつけてね ************************************************
+    On Error Resume Next
+        int_do_cnt = 0
+        Do
+            drv.NavigateTo "https://accounts.google.com/ServiceLogin/identifier?service=mail&flowName=GlifWebSignIn&flowEntry=ServiceLogin"
+            Call wait(4080)
+            int_do_cnt = int_do_cnt + 1
+            If int_do_cnt > 4 Then
+                Exit Do
+            End If
+        Loop Until Left(drv.GetTitle, 5) <> "Error"
+    On Error GoTo 0
+    '******
+    drv.FindElements(By.name, "identifier")(0).SendKeys CStr(str_gmail_address)
+    Call wait(300)
+    '*** 次へをクリック ***
+    For Each btn_html In drv.FindElements(By.tagName, "button")
+        If btn_html.GetText = "次へ" Then
+            btn_html.Click
+            Exit For
+        End If
+    Next btn_html
+    '** ここちょっと時間余裕みてください。もちろん早いときもあるけど。**
+    Call wait(16000)
+    
+    
+    '********************************** 本人確認が表示されていたら 続行をクリック DRIVER番号は気をつけてね ****************************
+    On Error Resume Next
+        Do Until drv.FindElements(By.tagName, "h1")(0).GetText = "本人確認"
+            Call wait(5022)
+        Loop
+    On Error GoTo 0
+    '*********************
+    For Each btn_html In drv.FindElements(By.tagName, "button")
+        If btn_html.GetText = "続行" Then
+            btn_html.Click
+            
+            '** 2026/01/16 add M50 L79**
+            Call wait(3000)
+            
+            Exit For
+        End If
+    Next btn_html
+    
+    
+    '**************** 20250903 DRIVER番号は気をつけてね ************************
+    int_do_cnt1 = 0
+    Do
+        Set elm_hndl = drv.GetWindowHandles
+        Call wait(1000)
+        int_do_cnt1 = int_do_cnt1 + 1
+        If int_do_cnt1 > 30 Then
+            Exit Do
+        End If
+    Loop Until elm_hndl.Count = 2
+    
+    '*************************************************************
+    If int_do_cnt1 < 31 Then
+        drv.SwitchToWindow (elm_hndl(2))
+        str_js1 = ""
+        str_js1 = str_js1 & "const elm_cr = document.querySelector('managed-user-profile-notice-app');"
+        str_js1 = str_js1 & "const elm_cr_shd = elm_cr.shadowRoot;"
+        str_js1 = str_js1 & "elm_cr_shd.querySelector('#cancel-button').click();"
+        On Error Resume Next
+            srch_rslt = drv.ExecuteScript(str_js1, elm_hndl)
+            Call wait(300)
+            srch_rslt = drv.ExecuteScript(str_js1)
+            Call wait(300)
+        On Error GoTo 0
+        drv.SwitchToWindow (elm_hndl(1))
+    End If
+
+
+    pubint_login_cnt = pubint_login_cnt + 1
+
+    
+End Sub

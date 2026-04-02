@@ -1,0 +1,101 @@
+﻿Sub challenge_search_on_112(drv, int_loop3)
+
+    
+    str_chlng_url1 = "applwebt.center.his"
+    str_chlng_url1 = "applweb.center.his"
+    
+    str_user1 = pubar2_area0(int_loop3, 86)
+    str_pass1 = pubar2_area0(int_loop3, 87)
+    
+    drv.NavigateTo "http://" & str_user1 & ":" & str_pass1 & "@" & str_chlng_url1 & "/cgi-bin/l/ltcq1_11_0?scid=_new"
+    
+    '*** 取り扱い元 ***
+    drv.FindElements(By.name, "body:cdArgmtIVR")(0).Clear
+    drv.FindElements(By.name, "body:cdArgmtIVR")(0).SendKeys CStr(pubar2_area0(int_loop3, 1))
+    
+    drv.FindElements(By.name, "body:nbRsvNo")(0).SendKeys CStr(pubar2_area0(int_loop3, 3))
+    
+    '*****************************
+    drv.FindElements(By.name, "body:cdDptrApt1")(0).SendKeys CStr(pubar2_area0(int_loop3, 23))
+    drv.FindElements(By.name, "body:cdDstAirprt1")(0).SendKeys CStr(pubar2_area0(int_loop3, 24))
+    
+    drv.FindElements(By.name, "body:cdDptrApt2")(0).SendKeys CStr(pubar2_area0(int_loop3, 25))
+    drv.FindElements(By.name, "body:cdDstAirprt2")(0).SendKeys CStr(pubar2_area0(int_loop3, 26))
+    
+    drv.FindElements(By.name, "body:cdDptrApt3")(0).SendKeys CStr(pubar2_area0(int_loop3, 27))
+    drv.FindElements(By.name, "body:cdDstAirprt3")(0).SendKeys CStr(pubar2_area0(int_loop3, 28))
+    
+    drv.FindElements(By.name, "body:cdDptrApt4")(0).SendKeys CStr(pubar2_area0(int_loop3, 29))
+    drv.FindElements(By.name, "body:cdDstAirprt4")(0).SendKeys CStr(pubar2_area0(int_loop3, 30))
+    
+    
+    '*****************************
+    drv.FindElements(By.name, "body:cdCarrier1")(0).SendKeys CStr(pubar2_area0(int_loop3, 31))
+    
+    
+    drv.FindElements(By.name, "body:cdAgent1")(0).SendKeys CStr(pubar2_area0(int_loop3, 36))
+    drv.FindElements(By.name, "body:cdAgent2")(0).SendKeys CStr(pubar2_area0(int_loop3, 37))
+    drv.FindElements(By.name, "body:cdAgent3")(0).SendKeys CStr(pubar2_area0(int_loop3, 38))
+    
+    '************** フライト ***************
+    drv.FindElements(By.name, "body:msFlight1")(0).SendKeys CStr(pubar2_area0(int_loop3, 41))
+    drv.FindElements(By.name, "body:msFlight2")(0).SendKeys CStr(pubar2_area0(int_loop3, 42))
+    drv.FindElements(By.name, "body:msFlight3")(0).SendKeys CStr(pubar2_area0(int_loop3, 43))
+    drv.FindElements(By.name, "body:msFlight4")(0).SendKeys CStr(pubar2_area0(int_loop3, 44))
+    drv.FindElements(By.name, "body:msFlight5")(0).SendKeys CStr(pubar2_area0(int_loop3, 45))
+    drv.FindElements(By.name, "body:msFlight6")(0).SendKeys CStr(pubar2_area0(int_loop3, 46))
+    drv.FindElements(By.name, "body:msFlight7")(0).SendKeys CStr(pubar2_area0(int_loop3, 47))
+    
+    '***** クラス *****
+    If pubar2_area0(int_loop3, 49) = 1 Then
+        drv.FindElements(By.name, "body:cfExcptCLS")(0).Click
+    End If
+    drv.FindElements(By.name, "body:cbAirSeatCls1")(0).SendKeys CStr(pubar2_area0(int_loop3, 49))
+    drv.FindElements(By.name, "body:cbAirSeatCls2")(0).SendKeys CStr(pubar2_area0(int_loop3, 50))
+    drv.FindElements(By.name, "body:cbAirSeatCls3")(0).SendKeys CStr(pubar2_area0(int_loop3, 51))
+    drv.FindElements(By.name, "body:cbAirSeatCls4")(0).SendKeys CStr(pubar2_area0(int_loop3, 52))
+    drv.FindElements(By.name, "body:cbAirSeatCls5")(0).SendKeys CStr(pubar2_area0(int_loop3, 53))
+    
+    drv.FindElements(By.name, "body:dyDptDateFrom")(0).SendKeys CStr(pubar2_area0(int_loop3, 54))
+    drv.FindElements(By.name, "body:dyDptDateTo")(0).SendKeys CStr(pubar2_area0(int_loop3, 55))
+    
+    '*********************************************
+    If pubar2_area0(int_loop3, 56) = 1 Then
+        drv.FindElements(By.name, "body:cfExcptOPR")(0).Click
+    End If
+    
+    drv.FindElements(By.name, "body:cjArrRqsSts1")(0).SendKeys CStr(pubar2_area0(int_loop3, 57))
+    drv.FindElements(By.name, "body:cjArrRqsSts2")(0).SendKeys CStr(pubar2_area0(int_loop3, 58))
+    drv.FindElements(By.name, "body:cjArrRqsSts3")(0).SendKeys CStr(pubar2_area0(int_loop3, 59))
+    drv.FindElements(By.name, "body:cjArrRqsSts4")(0).SendKeys CStr(pubar2_area0(int_loop3, 60))
+    drv.FindElements(By.name, "body:cjArrRqsSts5")(0).SendKeys CStr(pubar2_area0(int_loop3, 61))
+    
+    drv.FindElements(By.name, "body:cjArrRqsSts6")(0).SendKeys CStr(pubar2_area0(int_loop3, 62))
+    drv.FindElements(By.name, "body:cjArrRqsSts7")(0).SendKeys CStr(pubar2_area0(int_loop3, 63))
+    drv.FindElements(By.name, "body:cjArrRqsSts8")(0).SendKeys CStr(pubar2_area0(int_loop3, 64))
+    drv.FindElements(By.name, "body:cjArrRqsSts9")(0).SendKeys CStr(pubar2_area0(int_loop3, 65))
+    drv.FindElements(By.name, "body:cjArrRqsSts10")(0).SendKeys CStr(pubar2_area0(int_loop3, 66))
+    
+    '*********************************************
+    If pubar2_area0(int_loop3, 67) = 1 Then
+        drv.FindElements(By.name, "body:cfExcptIVR")(0).Click
+    End If
+    drv.FindElements(By.name, "body:cjArrResStt1")(0).SendKeys CStr(pubar2_area0(int_loop3, 68))
+    drv.FindElements(By.name, "body:cjArrResStt2")(0).SendKeys CStr(pubar2_area0(int_loop3, 69))
+    drv.FindElements(By.name, "body:cjArrResStt3")(0).SendKeys CStr(pubar2_area0(int_loop3, 70))
+    drv.FindElements(By.name, "body:cjArrResStt4")(0).SendKeys CStr(pubar2_area0(int_loop3, 71))
+    drv.FindElements(By.name, "body:cjArrResStt5")(0).SendKeys CStr(pubar2_area0(int_loop3, 72))
+    
+    drv.FindElements(By.name, "body:cjArrResStt6")(0).SendKeys CStr(pubar2_area0(int_loop3, 73))
+    drv.FindElements(By.name, "body:cjArrResStt7")(0).SendKeys CStr(pubar2_area0(int_loop3, 74))
+    drv.FindElements(By.name, "body:cjArrResStt8")(0).SendKeys CStr(pubar2_area0(int_loop3, 75))
+    drv.FindElements(By.name, "body:cjArrResStt9")(0).SendKeys CStr(pubar2_area0(int_loop3, 76))
+    drv.FindElements(By.name, "body:cjArrResStt10")(0).SendKeys CStr(pubar2_area0(int_loop3, 77))
+    
+    drv.FindElements(By.name, "body:Search")(0).Click
+    Call wait(5067)
+    Call chk_challenge_please(drv)
+
+End Sub
+
+

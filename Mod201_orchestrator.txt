@@ -1,0 +1,64 @@
+﻿Sub reflect_flt_num()
+
+    pubint_data_row = 11
+    '*** chlng112貼り付け場所 ***
+    pubint_execute_area3 = pubint_data_row1
+    pubint_execute_area4 = pubint_data_row1
+    pubint_execute_area5 = pubint_data_row1
+    
+    pubstr_book1_name = ActiveWorkbook.name
+    pubstr_pc_nam = Replace(CreateObject("WScript.Network").UserName, "RPA00", "PC")
+    pubpath_download = "C:\Users\" & CreateObject("WScript.Network").UserName & "\Downloads\"
+    pubpath_chromedriver = "C:\Users\" & CreateObject("WScript.Network").UserName & "\Documents\chromedriver\chromedriver.exe"
+    
+    '****** 各areaの列を特定する ******
+    int_index_row = 1
+    Call get_last_col(int_index_row)
+    For int_loop3 = 1 To pubint_last_col
+        If Cells(int_index_row, int_loop3).value <> "" Then
+            'Cells(int_index_row, int_loop3).Select
+            pubAR_area_col.Add (Cells(int_index_row, int_loop3).Column)
+        End If
+    Next int_loop3
+
+    '*********************************************** サーバーメンテ ***************************************************************
+    int_go3 = 1
+    Call server_mente_switch(int_go3, "close")
+
+    '************ 検索開始 ****************
+    DRIVER.Chrome (path_chromedriver)
+    DoEvents
+    DoEvents
+    DRIVER.OpenBrowser
+    DoEvents
+    DoEvents
+        'Call login_his_group(DRIVER)
+        '*******************************************************************************************************************************
+        pubar2_area0 = Range(Cells(pubint_data_row1, pubAR_area_col(0) + 0), Cells(int_area0_lst_row1, pubAR_area_col(1) - 4))
+        For int_loop3 = 1 To UBound(pubar2_area0)
+            int_go3 = 1
+            If int_go3 = 1 Then
+                pubstr_booking_sts = pubstr_booking_sts
+                Range(Cells(pubint_data_row1, pubAR_area_col(3) + 0), Cells(Rows.Count, pubAR_area_col(6) - 2)).ClearContents
+                Range(Cells(pubint_data_row1, pubAR_area_col(3) + 0), Cells(Rows.Count, pubAR_area_col(6) - 2)).Interior.Color = xlNone
+                pubint_execute_area3 = pubint_data_row
+                pubint_execute_area4 = pubint_data_row
+                pubint_execute_area5 = pubint_data_row
+            End If
+            
+            '*********************************
+            If int_go3 = 1 Then
+                Call chlng_srch_put(drv, int_go3)
+            End If
+            '*********************** 先処理があるならここから ****************************
+        Next int_loop3
+    DRIVER.CloseBrowser
+    DoEvents
+    DoEvents
+    Call wait(6000)
+    DRIVER.Quit
+    DoEvents
+    DoEvents
+    Call wait(6000)
+
+End Sub
